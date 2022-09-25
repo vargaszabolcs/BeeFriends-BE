@@ -19,6 +19,7 @@
         "indent": ["error", 4],
         "semi": ["warn", "always"],
         "quotes": ["warn", "double"],
-        "comma-spacing": ["warn", { "before": false, "after": true }]
+        "comma-spacing": ["warn", { "before": false, "after": true }],
+        "arrow-body-style": ["error", "as-needed"]
     }
 }
