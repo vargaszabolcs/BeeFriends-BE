@@ -1,8 +1,8 @@
+import cors from "cors";
 import express from "express";
 import mongoose from "mongoose";
 import authRoutes from "./routes/authRoutes";
 import beeRoutes from "./routes/beeRoutes";
-import cors from "cors";
 
 const app = express();
 const port = 3000;
