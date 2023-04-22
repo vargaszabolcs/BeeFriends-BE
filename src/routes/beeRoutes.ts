@@ -1,24 +1,24 @@
-import { IUser } from "./../models/User";
-import { Beehive, IBeehive } from "./../models/Beehive";
 import express from "express";
 import requireAuth from "../middleware/requireAuth";
+import { Beehive, IBeehive } from "./../models/Beehive";
+import { IUser } from "./../models/User";
 
 const router = express.Router();
 
 router.use(requireAuth);
 
 interface IPostMiddlewareReqData {
-    user: IUser
+    user: IUser;
 }
 
 // Get all hives owned by the current user
 router.get("/", async (req: express.Request & IPostMiddlewareReqData, res) => {
-    try{
+    try {
         const hives = await Beehive.find({ owner: req.user._id }).exec();
         res.send(hives);
     } catch (err) {
         console.error(err);
-        res.send({error: "Something went wrong!"});
+        res.send({ error: "Something went wrong!" });
     }
 });
 
@@ -32,7 +32,7 @@ router.post("/", async (req: express.Request<unknown, unknown, IBeehive> & IPost
         await hive.save();
     } catch (err) {
         console.error(err);
-        res.send({error: "Something went wrong!"});
+        res.send({ error: "Something went wrong!" });
     }
 
     res.send("Successful!");
@@ -44,9 +44,9 @@ router.delete("/:id", async (req, res) => {
         await Beehive.findByIdAndDelete(req.params.id).exec();
     } catch (err) {
         console.error(err);
-        res.send({error: "Something went wrong!"});
+        res.send({ error: "Something went wrong!" });
     }
-    
+
     res.send("Successful!");
 });
 
@@ -57,29 +57,33 @@ router.get("/:id", async (req: express.Request & IPostMiddlewareReqData, res) =>
         if (hive) {
             res.send(hive);
         } else {
-            res.send({error: "Could not find hive!"});
+            res.send({ error: "Could not find hive!" });
         }
     } catch (err) {
         console.error(err);
-        res.send({error: "Something went wrong!"});
+        res.send({ error: "Something went wrong!" });
     }
 });
 
 // Update existing hive
 router.post("/:id", async (req: express.Request & IPostMiddlewareReqData, res) => {
+    console.log("Updating hive:", req.body);
+
     try {
-        const hive = await Beehive.findOne({ owner: req.user._id, _id: req.params.id }).exec();
+        const hive = await Beehive.findOneAndUpdate({ owner: req.user._id, _id: req.params.id }, req.body, {
+            new: true,
+            runValidators: true,
+        }).exec();
+
         if (hive) {
-            Object.assign(hive, req.body);
-            await hive.save();
+            res.send(hive);
         } else {
-            res.send({error: "Could not find hive!"});
+            res.send({ error: "Could not find hive!" });
         }
     } catch (err) {
         console.error(err);
-        res.send({error: "Something went wrong!"});
+        res.send({ error: "Something went wrong!" });
     }
-    res.send("Successful!");
 });
 
 export default router;

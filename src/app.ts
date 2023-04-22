@@ -14,7 +14,10 @@ app.use("/beehive", beeRoutes);
 
 const mongooseUri = "mongodb+srv://admin:admin@cluster0.yogv9.mongodb.net/bee_friends?retryWrites=true&w=majority";
 
-mongoose.connect(mongooseUri);
+mongoose.connect(mongooseUri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+} as mongoose.ConnectOptions);
 
 mongoose.connection.on("connected", () => {
     console.log("Successfully connected to MongoDB!");
