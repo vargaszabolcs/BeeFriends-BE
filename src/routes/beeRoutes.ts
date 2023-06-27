@@ -1,5 +1,6 @@
 import express from "express";
 import requireAuth from "../middleware/requireAuth";
+import { Record } from "../models/Record";
 import { Beehive, IBeehive } from "./../models/Beehive";
 import { IUser } from "./../models/User";
 
@@ -84,6 +85,57 @@ router.post("/:id", async (req: express.Request & IPostMiddlewareReqData, res) =
         console.error(err);
         res.send({ error: "Something went wrong!" });
     }
+});
+
+// Create new record for a hive
+router.post("/:id/records", async (req: express.Request & IPostMiddlewareReqData, res) => {
+    console.log("Creating new record:", req.body);
+
+    try {
+        const hive = await Beehive.findOne({ owner: req.user._id, _id: req.params.id }).exec();
+
+        if (hive) {
+            const record = new Record(req.body);
+            record.owner = req.user._id;
+            record.beehive = hive._id;
+            await record.save();
+            res.send(record);
+        } else {
+            res.send({ error: "Could not find hive!" });
+        }
+    } catch (err) {
+        console.error(err);
+        res.send({ error: "Something went wrong!" });
+    }
+});
+
+// Get all records for a hive
+router.get("/:id/records", async (req: express.Request & IPostMiddlewareReqData, res) => {
+    try {
+        const hive = await Beehive.findOne({ owner: req.user._id, _id: req.params.id }).exec();
+
+        if (hive) {
+            const records = await Record.find({ owner: req.user._id, beehive: hive._id }).exec();
+            res.send(records);
+        } else {
+            res.send({ error: "Could not find hive!" });
+        }
+    } catch (err) {
+        console.error(err);
+        res.send({ error: "Something went wrong!" });
+    }
+});
+
+// Delete a record by id
+router.delete("/:id/records/:recordId", async (req, res) => {
+    try {
+        await Record.findByIdAndDelete(req.params.recordId).exec();
+    } catch (err) {
+        console.error(err);
+        res.send({ error: "Something went wrong!" });
+    }
+
+    res.send("Successful!");
 });
 
 export default router;
